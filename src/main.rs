@@ -1,3 +1,12 @@
+use entity::connection::Connection;
+use service::tcp::Tcp;
+
+mod service;
+mod entity;
+
+static IP: &str = "localhost";
+static PORT: &str = "444";
+
 fn main() {
-    println!("Hello, world!");
+    let mut tcp = Tcp::new(Connection{ip: &IP, port: &PORT}).unwrap();
 }
