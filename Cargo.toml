@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+aead = "0.5.2"
+aes-gcm = {version = "*", features = ["std"]}
