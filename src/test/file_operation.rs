@@ -25,7 +25,7 @@ fn file_reading_as_bytes() -> Result<(),std::io::Error> {
         buf.push(byte?);
     }
     let s = String::from_utf8(buf).unwrap();
-    assert_eq!(s, "Im ready being encrypted!");
+    assert_eq!(s, "im ready being encrypted!");
     Ok(())
 }
 
@@ -34,12 +34,10 @@ fn file_encryption() -> Result<(), std::io::Error> {
     // init for encryption
     const BUFFER_SIZE: usize = 512;
     let key = Aes256Gcm::generate_key(OsRng);
-    println!("The generated key:");
-    println!("{:?}",key);
 
     let cipher = Aes256Gcm::new(&key);
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
-    let test_file_path = Path::new("src/test/test_file_encryption.txt");
+    let test_file_path = Path::new("src/test/test_file.txt");
 
 
     let mut file =  OpenOptions::new()
@@ -51,7 +49,6 @@ fn file_encryption() -> Result<(), std::io::Error> {
     let mut reader = BufReader::with_capacity(BUFFER_SIZE,  file.try_clone()?);
     
     // reading the file and ecrypting its content
-    println!("Encrypted buffer:");
     loop {
         let starting_pos = reader.stream_position()?;
         let buffer = reader.fill_buf()?;
@@ -60,17 +57,18 @@ fn file_encryption() -> Result<(), std::io::Error> {
         if buffer_length == 0 {
             break;
         }
-        
+
         let encrypted_buffer= cipher.encrypt(&nonce, buffer).unwrap_or(vec![]);
-        println!("{:?}", encrypted_buffer);
 
         //swappint the file content
         file.seek(io::SeekFrom::Start(starting_pos))?;
-        file.write_all(buffer)?;
-    
+        file.write_all(&encrypted_buffer.as_slice())?;
+        file.sync_data()?;
         // All bytes consumed from the buffer
         // should not be read again.
+        file.sync_all()?;
         reader.consume(buffer_length);
     }
+    println!("{:?}", key);
     Ok(())
 }
