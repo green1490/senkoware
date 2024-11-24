@@ -1,8 +1,8 @@
+use aead::{generic_array::arr, AeadMutInPlace};
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm //
+    Aes256Gcm
 };
-use core::str;
 use std::{error::Error, fs::{File, OpenOptions}, io::{self, BufRead, BufReader, BufWriter, Read, Seek, Write}, path::Path, vec};
 
 #[test]
@@ -30,11 +30,11 @@ fn file_reading_as_bytes() -> Result<(),std::io::Error> {
 }
 
 #[test]
-fn file_encryption() -> Result<(), std::io::Error> {
+fn encrypt_file() -> Result<(), std::io::Error> {
     // init for encryption
     const BUFFER_SIZE: usize = 512;
-    let key = Aes256Gcm::generate_key(OsRng);
-
+    let key = arr![u8;206, 154, 79, 48, 164, 77, 85, 152, 57, 96, 113, 178, 129, 90, 17, 153, 254, 29, 28, 187, 20, 183, 96, 218, 95, 221, 182, 161, 133, 100, 207, 62];
+    // let key = Aes256Gcm::generate_key(OsRng);
     let cipher = Aes256Gcm::new(&key);
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     let test_file_path = Path::new("src/test/test_file.txt");
@@ -70,5 +70,37 @@ fn file_encryption() -> Result<(), std::io::Error> {
         reader.consume(buffer_length);
     }
     println!("{:?}", key);
+    Ok(())
+}
+
+#[test]
+fn decrypt_file() -> Result<(), std::io::Error> {
+    const BUFFER_SIZE: usize = 512;
+    let key = arr![u8;206, 154, 79, 48, 164, 77, 85, 152, 57, 96, 113, 178, 129, 90, 17, 153, 254, 29, 28, 187, 20, 183, 96, 218, 95, 221, 182, 161, 133, 100, 207, 62];
+    let cipher = Aes256Gcm::new(&key);
+    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    let test_file_path = Path::new("src/test/test_file.txt");
+    
+    let mut file =  OpenOptions::new()
+        .create(true)
+        .write(true)
+        .read(true)
+        .open(test_file_path)?;
+    
+    let mut reader = BufReader::with_capacity(BUFFER_SIZE,  file.try_clone()?);
+    let mut counter = 3;
+    loop {
+        let starting_pos = reader.stream_position()?;
+        let buffer = reader.fill_buf()?;
+        let buffer_length = buffer.len();
+
+        if buffer_length == 0 {
+            break;
+        }
+
+        let decrypted_buffer= cipher.decrypt(&nonce, buffer).err();
+        println!("{:?}", decrypted_buffer);
+        reader.consume(buffer_length);
+    }
     Ok(())
 }
