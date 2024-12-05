@@ -16,6 +16,21 @@ fn encryption() {
 }
 
 #[test]
+fn encrypt_decrypt() -> Result<(), std::io::Error> {
+    let key = arr![u8;206, 154, 79, 48, 164, 77, 85, 152, 57, 96, 113, 178, 129, 90, 17, 153, 254, 29, 28, 187, 20, 183, 96, 218, 95, 221, 182, 161, 133, 100, 207, 62];
+    let cipher = Aes256Gcm::new(&key);
+    // let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    let nonce = arr![u8; 45, 201, 214, 91, 250, 194, 247, 220, 219, 103, 206, 18];
+    let original = b"Im ready being encrypted!";
+    let plaintext = b"Im ready being encrypted!";
+    let encrypted_text = cipher.encrypt(&nonce, plaintext.as_ref()).unwrap_or(vec![]);
+    let derypted_text = cipher.decrypt(&nonce, encrypted_text.as_ref()).unwrap_or(vec![]);
+    
+    assert_eq!(String::from_utf8(original.to_vec()), String::from_utf8(derypted_text));
+    Ok(())
+}
+
+#[test]
 fn file_reading_as_bytes() -> Result<(),std::io::Error> {
     let mut file = File::open("src/test/test_file.txt")?;
     let mut buf:Vec<u8> = vec![];
@@ -32,11 +47,12 @@ fn file_reading_as_bytes() -> Result<(),std::io::Error> {
 #[test]
 fn encrypt_file() -> Result<(), std::io::Error> {
     // init for encryption
-    const BUFFER_SIZE: usize = 512;
-    let key = arr![u8;206, 154, 79, 48, 164, 77, 85, 152, 57, 96, 113, 178, 129, 90, 17, 153, 254, 29, 28, 187, 20, 183, 96, 218, 95, 221, 182, 161, 133, 100, 207, 62];
+    const BUFFER_SIZE: usize = 256;
     // let key = Aes256Gcm::generate_key(OsRng);
+    let key = arr![u8;206, 154, 79, 48, 164, 77, 85, 152, 57, 96, 113, 178, 129, 90, 17, 153, 254, 29, 28, 187, 20, 183, 96, 218, 95, 221, 182, 161, 133, 100, 207, 62];
     let cipher = Aes256Gcm::new(&key);
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    // let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    let nonce = arr![u8; 45, 201, 214, 91, 250, 194, 247, 220, 219, 103, 206, 18];
     let test_file_path = Path::new("src/test/test_file.txt");
 
 
@@ -69,16 +85,19 @@ fn encrypt_file() -> Result<(), std::io::Error> {
         file.sync_all()?;
         reader.consume(buffer_length);
     }
-    println!("{:?}", key);
     Ok(())
 }
 
 #[test]
 fn decrypt_file() -> Result<(), std::io::Error> {
-    const BUFFER_SIZE: usize = 512;
+    // key
+    // IV
+    // authentication tag
+    const BUFFER_SIZE: usize = 256;
     let key = arr![u8;206, 154, 79, 48, 164, 77, 85, 152, 57, 96, 113, 178, 129, 90, 17, 153, 254, 29, 28, 187, 20, 183, 96, 218, 95, 221, 182, 161, 133, 100, 207, 62];
     let cipher = Aes256Gcm::new(&key);
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    //let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    let nonce = arr![u8; 45, 201, 214, 91, 250, 194, 247, 220, 219, 103, 206, 18];
     let test_file_path = Path::new("src/test/test_file.txt");
     
     let mut file =  OpenOptions::new()
