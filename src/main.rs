@@ -1,3 +1,12 @@
-fn main() {
-    println!("Hello, world!");
+mod service;
+
+use home::home_dir;
+use service::path_traversal::path_traversal;
+use std::fs;
+
+fn main() -> std::io::Result<()> {
+    let home_dir = fs::read_dir(home_dir().ok_or(std::io::Error::last_os_error())?)?;
+    // itarates trough the directories
+    path_traversal(home_dir);
+    Ok(())
 }

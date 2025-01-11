@@ -29,3 +29,9 @@ fn directory_discovery() -> Result<(), std::io::Error> {
     }
     Ok(())
 }
+
+#[test]
+#[allow(unused_variables)]
+fn home_directory(){
+    let home = home::home_dir().unwrap();
+}
