@@ -1,7 +1,8 @@
 use std::{collections::VecDeque, fs::{DirEntry, ReadDir}};
+use super::interface::filter::Filter;
 
 // uses dfs algorithm for traveling in the directory system
-pub fn path_traversal(home: ReadDir) -> std::io::Result<()> {
+pub fn path_traversal<T: Filter>(home: ReadDir, filter: T) -> std::io::Result<()> {
     let mut stack:VecDeque<std::io::Result<DirEntry>> = home.collect();
     while stack.len() != 0 {
         let current_node = stack.pop_front().ok_or(std::io::Error::last_os_error())??;

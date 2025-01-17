@@ -29,3 +29,9 @@ fn entry_filter() {
     ).collect();
     assert_eq!(2, filtered_entries.len());
 }
+
+#[test]
+fn filter_function() {
+    // filtering: regex, .gitignore, wordlist, permission
+    // common: path(filter child nodes) -> vector
+}
