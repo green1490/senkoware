@@ -1,5 +1,6 @@
 use std::{collections::VecDeque, fs::{DirEntry, ReadDir}};
-use super::interface::filter::Filter;
+
+use crate::service::interface::filter::Filter;
 
 // uses dfs algorithm for traveling in the directory system
 pub fn path_traversal<T: Filter>(home: ReadDir, filter: T) -> std::io::Result<()> {
