@@ -1,7 +1,6 @@
 mod service;
 
 use home::home_dir;
-use service::path_traversal::path_traversal;
 use std::fs;
 
 fn main() -> std::io::Result<()> {

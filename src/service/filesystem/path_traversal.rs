@@ -2,6 +2,11 @@ use std::{collections::VecDeque, fs::{DirEntry, ReadDir}};
 
 use crate::service::interface::filter::Filter;
 
+pub struct PathTraversal<T: Filter> {
+    filter: T,
+    home: ReadDir
+}
+
 // uses dfs algorithm for traveling in the directory system
 pub fn path_traversal<T: Filter>(home: ReadDir, filter: T) -> std::io::Result<()> {
     let mut stack:VecDeque<std::io::Result<DirEntry>> = home.collect();
